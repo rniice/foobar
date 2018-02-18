@@ -81,13 +81,13 @@ def answer(map):
                     history.append(next_pos[0])
                 elif(len(next_pos)>1):
                     print("multiple options, need to branch")
-                    return 9999
+                    return 9999999
                 elif(len(history) > min_len):
                     print("exceeded previous solution")
-                    return 9999
+                    return 9999999
                 else:
                     print("this path has dead ended")
-                    return 9999
+                    return 9999999
 
                 if(end in next_pos):
                     print(history)
@@ -98,7 +98,7 @@ def answer(map):
 
 
     def main(m):
-        shortest_route = 99999
+        shortest_route = 9999999
 
         x = Maze(m)
         #for each item in x.design_options; solve it
@@ -116,5 +116,6 @@ def answer(map):
     return main(map)
 
 
-result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+#result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
 print(result)
