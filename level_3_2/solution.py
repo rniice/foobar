@@ -150,9 +150,8 @@ def answer(maze):
         shortest_route = 9999999
 
         x = Maze(m)
-        #for each item in x.design_options; solve it
-        #for index in range(0, len(x.design_options)):
-        for index in range(0, 1):
+
+        for index in range(0, len(x.design_options)):
             print("solving for map index: " + str(index))
 
             results = x.recursiveSolve(index)
@@ -168,8 +167,8 @@ def answer(maze):
     return main(maze)
 
 
-#result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
-result = answer([[0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+#result = answer([[0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
 
 #result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
 print(result)
