@@ -3,15 +3,19 @@ import copy as copy
 #start: top left;   0, 0
 #end: bottom right; (w-1, h-1)
 
-def answer(map):
+def answer(maze):
 
     class Maze:
         def __init__(self, design):
-            self.design         = design
-            self.size           = (len(self.design[1])-1,len(self.design[0])-1)
-            self.walls          = self.identifyWalls()
-            self.design_options = self.generateMapOptions()
-            self.max_nodes      = None
+            self.design                 = design
+            self.size                   = (len(self.design[1])-1,len(self.design[0])-1)
+            self.walls                  = self.identifyWalls()
+            self.design_options         = self.generateMapOptions()
+            self.history                = [(0,0)]
+            self.shortest_path          = 99999
+            self.history_queue          = [[(0,0)]]
+            self.history_queue_route    = 0
+            self.history_queue_lock     = False
 
         def removeWall(self, index):
             mod = copy.deepcopy(self.design)
@@ -66,35 +70,49 @@ def answer(map):
             return next_pos
 
 
-        def solve(self, index, min_len):
+        def recursiveSolve(self, index):
             #later need to make history a list of lists to try different nested options, dead ends get purged.
-            start   = (0,0)
-            end     = self.size
             solved  = False
 
-            history = [start]
-
             while(not solved):
-                next_pos = self.identifyNextNode(index, history)
+                next_pos     = self.identifyNextNode(index, self.history_queue[self.history_queue_route])
+                route_length = len(self.history_queue[self.history_queue_route])
 
-                if(len(next_pos)==1):
-                    history.append(next_pos[0])
-                elif(len(next_pos)>1):
-                    print("multiple options, need to branch")
-                    return 9999999
-                elif(len(history) > min_len):
-                    print("exceeded previous solution")
-                    return 9999999
+                if(len(next_pos)>0 and (route_length+1) < self.shortest_path):
+                    #create new copies in the queue
+                    for i in range(0, len(next_pos) - 1):
+                        previous_route = copy.deepcopy(self.history_queue[self.history_queue_route])
+                        self.history_queue.append(previous_route)
+
+                    #do this only when the lengths are the same.
+                    for i, option in enumerate(next_pos):
+                        self.history_queue[self.history_queue_route+i].append(option)
+
                 else:
-                    print("this path has dead ended")
-                    return 9999999
+                    print("either dead ended or exceeded prior path length, going to next item in queue")
+                    print(self.history_queue)
+                    self.history_queue_route +=1
 
-                if(end in next_pos):
-                    print(history)
+                print(self.history_queue[self.history_queue_route])
+                printResults(self.design_options[index], self.history_queue[self.history_queue_route])
+                #default to solving the first in the self.history_queue
+
+                if(self.size in next_pos):
+                    print("solved!")
                     solved = True
 
-            return len(history)
-            #solve for the specific alteration at hand
+            return {'len': len(self.history_queue[self.history_queue_route]), 'history': self.history_queue[self.history_queue_route]}
+
+
+    def printResults(maze, route):
+        result_path = copy.deepcopy(maze)
+        for y,row in enumerate(maze):
+            for x,value in enumerate(row):
+                #change the value to "*" if in the route
+                if (x,y) in route:
+                    result_path[y][x] = 8
+        for line in result_path:
+            print(line)
 
 
     def main(m):
@@ -102,20 +120,22 @@ def answer(map):
 
         x = Maze(m)
         #for each item in x.design_options; solve it
-        for index in range(0, len(x.design_options)):
+        #for index in range(0, len(x.design_options)):
+        for index in range(1, 2):
             print("solving for map index: " + str(index))
-            route_length = x.solve(index,shortest_route)
 
-            if(route_length < shortest_route):
-                shortest_route = route_length
+            results = x.recursiveSolve(index)
+            printResults(x.design_options[index],results['history'])
 
-            #print(maze_option)
+            if(results):
+                if(results['len'] < shortest_route):
+                    shortest_route = results['len']
 
         return shortest_route
 
-    return main(map)
+    return main(maze)
 
 
-#result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
-result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+#result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
 print(result)
