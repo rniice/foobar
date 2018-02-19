@@ -91,46 +91,48 @@ def answer(maze):
             return next_pos
 
 
-        def recursiveSolve(self, index):
-            #later need to make history a list of lists to try different nested options, dead ends get purged.
-            solved  = False
+        def recursiveSolve(self, index, reset):
+            if(reset):
+                self.current_route = 0
+                self.max_route_index = 0
 
             #while(not solved and (len(self.history_queue) != self.history_queue_route - 1)):
-            while (not solved and self.current_route <= self.max_route_index):
+            while ( (self.current_route <= self.max_route_index) and (self.routes[self.current_route].length < self.shortest_route_length)):
+                print("solving for map index: " + str(index))
+                print("max_route_index: " + str(self.max_route_index))
+                print("present_route_index: " + str(self.current_route))
                 next_pos = self.identifyNextNode(index, self.routes[self.current_route].history)
 
                 if(len(next_pos)>0):
                     default = next_pos.pop(0)
                     self.routes[self.current_route].addNextPos(default)
 
-                    print("route iteration: " +str(self.current_route))
                     printResults(self.design_options[index], self.routes[self.current_route].history)
                     #for the remaining options, create new route alternates
                     for option in next_pos:
-                        new_route_index   = self.getNextRoute()
-                        self.routes[new_route_index] = Route(self.routes[self.current_route].history[0:-1], self.end)
+                        new_route_index = self.getNextRoute()
+                        prior_history = copy.deepcopy(self.routes[self.current_route].history[0:-1])
+                        print("printing prior history:")
+                        printResults(self.design_options[index], prior_history)
+                        self.routes[new_route_index] = Route(prior_history, self.end)
                         self.routes[new_route_index].addNextPos(option)
+                        print("printing new route for future:")
+                        printResults(self.design_options[index], self.routes[new_route_index].history)
+
                         #print("option: " +str(option))
 
                 else:
                     print("either dead ended or exceeded prior path length, going to next item in queue")
 
+
                     #see if present route option is shortest
                     if(self.routes[self.current_route].solved and self.routes[self.current_route].length < self.shortest_route_length):
                         self.shortest_route_length = self.routes[self.current_route].length
                         self.shortest_route_index  = self.current_route
-                        solved = True
                         self.current_route += 1
                     else:
                         #need to keep chugging along on another path option
                         self.current_route+=1
-
-                    #self.history_queue_route +=1
-                    #self.history_queue_lock = False
-
-                #printResults(self.design_options[index], self.history_queue[self.history_queue_route])
-                #default to solving the first in the self.history_queue
-
 
             return {'len': self.shortest_route_length, 'history': self.routes[self.shortest_route_index].history}
 
@@ -148,13 +150,11 @@ def answer(maze):
 
     def main(m):
         shortest_route = 9999999
-
         x = Maze(m)
 
-        for index in range(0, len(x.design_options)):
-            print("solving for map index: " + str(index))
-
-            results = x.recursiveSolve(index)
+        for index in range(1, len(x.design_options)):
+        #for index in range(0, 2):
+            results = x.recursiveSolve(index,False)
             print(results)
             printResults(x.design_options[index],results['history'])
             print(results['len'])
@@ -167,8 +167,8 @@ def answer(maze):
     return main(maze)
 
 
-result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+#result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
 #result = answer([[0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
-
-#result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+#result = answer([[0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
 print(result)
