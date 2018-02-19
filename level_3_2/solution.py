@@ -16,6 +16,8 @@ def answer(maze):
         def addNextPos(self, next_pos):
             self.history.append(next_pos)
             self.length+=1
+            if(next_pos == self.last_pos):
+                self.solved = True
 
 
     class Maze:
@@ -25,11 +27,14 @@ def answer(maze):
             self.walls                  = self.identifyWalls()
             self.design_options         = self.generateMapOptions()
             self.routes                 = {0:Route([(0,0)],self.end)}
+            self.max_route_index        = 0
             self.current_route          = 0
             self.shortest_route_index   = 0
             self.shortest_route_length  = 99999
-            self.shortest_path          = 99999
 
+        def getNextRoute(self):
+            self.max_route_index = max(self.routes.keys())+1
+            return self.max_route_index
 
         def removeWall(self, index):
             mod = copy.deepcopy(self.design)
@@ -78,7 +83,7 @@ def answer(maze):
                     #print("next_tuple before check: " + str(next_tuple))
                     #maze_val_next = option_map[pos_y_next][pos_x_next]
                     if(option_map[pos_y_next][pos_x_next] == 0 and next_tuple not in history):
-                        print("next_tuple after check: " + str(next_tuple))
+                        #print("next_tuple after check: " + str(next_tuple))
                         next_pos.append(next_tuple)
                         #print("passable: " + str(next_tuple))
 
@@ -91,61 +96,42 @@ def answer(maze):
             solved  = False
 
             #while(not solved and (len(self.history_queue) != self.history_queue_route - 1)):
-            while (not solved):
+            while (not solved and self.current_route <= self.max_route_index):
                 next_pos = self.identifyNextNode(index, self.routes[self.current_route].history)
 
                 if(len(next_pos)>0):
                     default = next_pos.pop(0)
                     self.routes[self.current_route].addNextPos(default)
+
+                    print("route iteration: " +str(self.current_route))
+                    printResults(self.design_options[index], self.routes[self.current_route].history)
                     #for the remaining options, create new route alternates
                     for option in next_pos:
-                        print("option: " +str(option))
+                        new_route_index   = self.getNextRoute()
+                        self.routes[new_route_index] = Route(self.routes[self.current_route].history[0:-1], self.end)
+                        self.routes[new_route_index].addNextPos(option)
+                        #print("option: " +str(option))
 
                 else:
                     print("either dead ended or exceeded prior path length, going to next item in queue")
-                    print(self.routes[self.current_route].history)
 
                     #see if present route option is shortest
-                    if(self.routes[self.current_route].length < self.shortest_route_length):
+                    if(self.routes[self.current_route].solved and self.routes[self.current_route].length < self.shortest_route_length):
                         self.shortest_route_length = self.routes[self.current_route].length
                         self.shortest_route_index  = self.current_route
+                        solved = True
+                        self.current_route += 1
+                    else:
+                        #need to keep chugging along on another path option
+                        self.current_route+=1
 
-
-                    solved = True  #TEMPORARY
                     #self.history_queue_route +=1
                     #self.history_queue_lock = False
 
-                '''
-                route_length = len(self.history_queue[self.history_queue_route])
-
-                if(len(next_pos)>0 and (route_length+1) < self.shortest_path):
-                    previous_route = copy.deepcopy(self.history_queue[self.history_queue_route])
-
-                    if(not self.history_queue_lock):
-                        for i in range(1,len(next_pos)):
-                            print("adding new paths")
-                            self.history_queue.append(previous_route)
-                            self.history_queue[self.history_queue_route + i].append(next_pos[i])
-                            print("length history_queue: " + str(len(self.history_queue)))
-
-                    self.history_queue_lock = True
-
-                    self.history_queue[self.history_queue_route].append(next_pos[0])
-                    #SEE PROBLEM SOURCE FOR DEBUG!!
-                '''
-
-
-                '''
-                printResults(self.design_options[index], self.history_queue[self.history_queue_route])
+                #printResults(self.design_options[index], self.history_queue[self.history_queue_route])
                 #default to solving the first in the self.history_queue
 
-                if(self.size in next_pos):
-                    print("solved!")
-                    #self.history_queue_route += 1
-                    self.history_queue_lock = False
-                    #update the shortest path found?
-                    solved = True
-                '''
+
             return {'len': self.shortest_route_length, 'history': self.routes[self.shortest_route_index].history}
 
 
@@ -182,8 +168,8 @@ def answer(maze):
     return main(maze)
 
 
-result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
-#result = answer([[0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+#result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
+result = answer([[0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
 
 #result = answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
 print(result)
