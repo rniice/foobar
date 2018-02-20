@@ -123,7 +123,6 @@ def answer(maze):
                         self.current_route+=1
 
             return {'len': self.shortest_route_length, 'last': self.routes[self.shortest_route_index].history[-1]}
-
     def main(m):
         shortest_two_way_route = 9999999
         results                = dict()
