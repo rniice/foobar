@@ -30,9 +30,9 @@ def answer(maze):
             self.shortest_route_index   = 0
             self.shortest_route_length  = 99999
 
-        def addNewRoute(self, history):
+        def getNextRoute(self):
             self.max_route_index+=1
-            self.routes[self.max_route_index] = Route(history, self.end)
+            return self.max_route_index
 
         def resetOptionIterators(self ,shortest_length, start, end):
             self.start = start
@@ -90,12 +90,10 @@ def answer(maze):
             if(pos_y == self.bounds[1]): allow[1]=0
 
             for index, val in enumerate(allow):
-                if(val):
-                    pos_x_next = pos_x + map_next[index][0]
-                    pos_y_next = pos_y + map_next[index][1]
-                    next_tuple = (pos_x_next, pos_y_next)
+                if(val == 1):
+                    next_tuple = (pos_x + map_next[index][0], pos_y + map_next[index][1])
 
-                    if(not option_map[pos_y_next][pos_x_next] and next_tuple not in history):
+                    if(option_map[next_tuple[1]][next_tuple[0]] == 0 and next_tuple not in history):
                         next_pos.append(next_tuple)
 
             return next_pos
@@ -105,13 +103,18 @@ def answer(maze):
                 self.resetOptionIterators(shortest_route_length, start, end)
 
             while ((self.current_route <= self.max_route_index) and (self.routes[self.current_route].length < self.shortest_route_length)):
-                previous_history = list(self.routes[self.current_route].history)
                 next_pos = self.identifyNextNode(index, list(self.routes[self.current_route].history))
 
-                if(next_pos and (not self.routes[self.current_route].solved) and self.routes[self.current_route].length < self.shortest_route_length ):
-                    self.routes[self.current_route].addNextPos(next_pos.pop(0))
-                    for option in next_pos:
-                        self.addNewRoute(previous_history + [option])
+                if(next_pos and (not self.routes[self.current_route].solved) ):
+                #if(len(next_pos)>0 and (not self.routes[self.current_route].solved) ):
+                    default = next_pos[0]
+                    self.routes[self.current_route].addNextPos(default)
+
+                    for option in next_pos[1:]:
+                        new_route_index = self.getNextRoute()
+                        prior_history = list(self.routes[self.current_route].history)[0:-1]
+                        self.routes[new_route_index] = Route(prior_history, self.end)
+                        self.routes[new_route_index].addNextPos(option)
 
                 else:
                     if(self.routes[self.current_route].solved and self.routes[self.current_route].length < self.shortest_route_length):
@@ -123,6 +126,7 @@ def answer(maze):
                         self.current_route+=1
 
             return {'len': self.shortest_route_length, 'last': self.routes[self.shortest_route_index].history[-1]}
+
     def main(m):
         shortest_two_way_route = 9999999
         results                = dict()
@@ -130,12 +134,13 @@ def answer(maze):
 
         for index in range(0, len(x.walls)):
             start2wall = x.solvePathway(index, True, (0,0), x.walls[index], shortest_two_way_route)
-            end2wall = x.solvePathway(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
+            if(not start2wall['len']>shortest_two_way_route):
+                end2wall = x.solvePathway(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
 
-            if(start2wall['last']==end2wall['last'] and x.walls[index]==start2wall['last']):
-                results[index] = start2wall['len'] + end2wall['len'] - 1
-                if(results[index] < shortest_two_way_route ):
-                    shortest_two_way_route = results[index]
+                if(start2wall['last']==end2wall['last'] and x.walls[index]==start2wall['last']):
+                    results[index] = start2wall['len'] + end2wall['len'] - 1
+                    if(results[index] < shortest_two_way_route ):
+                        shortest_two_way_route = results[index]
 
         return shortest_two_way_route
 
