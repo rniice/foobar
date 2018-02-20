@@ -17,7 +17,7 @@ def answer(maze):
             self.history.append(next_pos)
             self.length+=1
             if(next_pos == self.last_pos):
-                print("route solved")
+                #print("route solved")
                 self.solved = True
 
     class Maze:
@@ -58,6 +58,12 @@ def answer(maze):
                 for x, val in enumerate(maze_row):
                     if(val==1):
                         wall_tuples.append((x,y))
+            #make up a fake wall within range if no walls exist
+            if(len(wall_tuples)==0 and len(self.design)>1):
+                wall_tuples.append((0,1))
+            else:
+                wall_tuples.append((1,0))
+
             return wall_tuples
 
         def generateMapOptions(self):
@@ -136,35 +142,32 @@ def answer(maze):
 
     def main(m):
 
-        shortest_route = 9999999
+        shortest_one_way_route = 9999999
+        shortest_two_way_route = 9999999
         x = Maze(m)
 
-        #for index in range(0,len(x.design_options)):
-        #for index in range(0, len(x.walls)):
-        for index in range(1, 8):
+        for index in range(0, len(x.walls)):
 
             #find the distance from start to the wall
             start = (0,0)
             end = x.walls[index]
-            results = x.recursiveSolve(index, True, start, end, shortest_route)
-            print("start to wall for wall: " + str(x.walls[index]))
-            printResults(x.design_options[index], results['history'])
-
-            #find the distance from end to the wall
-            #print("end to wall: ")
+            start2wall = x.recursiveSolve(index, True, start, end, shortest_one_way_route)
+            #print("start to wall for wall: " + str(x.walls[index]))
+            #printResults(x.design_options[index], start2wall['history'])
 
             start = (len(x.design[0]) - 1, len(x.design) - 1)
             end = x.walls[index]
-            results = x.recursiveSolve(index, True, start, end, shortest_route)
-            print("end to wall for wall: " + str(x.walls[index]))
-            printResults(x.design_options[index], results['history'])
+            end2wall = x.recursiveSolve(index, True, start, end, shortest_one_way_route)
+            #print("end to wall for wall: " + str(x.walls[index]))
+            #printResults(x.design_options[index], end2wall['history'])
 
-            '''
-            if(results):
-                if(results['len'] < shortest_route):
-                    shortest_route = results['len']
-            '''
-        return shortest_route
+            #make sure both routes connect
+            if(start2wall['history'][-1] == end2wall['history'][-1]):
+                combined_route_length = start2wall['len'] + end2wall['len'] - 1
+                if(combined_route_length < shortest_two_way_route ):
+                    shortest_two_way_route = combined_route_length
+
+        return shortest_two_way_route
 
     return main(maze)
 
