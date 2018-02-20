@@ -85,11 +85,9 @@ def answer(maze):
             pos_y = pos[1]
 
             if(pos_x == 0): allow[2]=0
-            #if(pos_x == self.end[0]): allow[3]=0
             if(pos_x == self.bounds[0]): allow[3]=0
-            if (pos_y == 0): allow[0]=0
-            #if (pos_y == self.end[1]): allow[1]=0
-            if (pos_y == self.bounds[1]): allow[1]=0
+            if(pos_y == 0): allow[0]=0
+            if(pos_y == self.bounds[1]): allow[1]=0
 
             for index, val in enumerate(allow):
                 if(val == 1):
@@ -108,7 +106,6 @@ def answer(maze):
 
             while ((self.current_route <= self.max_route_index) and (self.routes[self.current_route].length < self.shortest_route_length)):
                 next_pos = self.identifyNextNode(index, list(self.routes[self.current_route].history))
-                #print(next_pos)
 
                 if(len(next_pos)>0 and (not self.routes[self.current_route].solved) ):
                     default = next_pos.pop(0)
@@ -116,7 +113,7 @@ def answer(maze):
 
                     for option in next_pos:
                         new_route_index = self.getNextRoute()
-                        prior_history = copy.deepcopy(list(self.routes[self.current_route].history)[0:-1])
+                        prior_history = list(self.routes[self.current_route].history)[0:-1]
                         self.routes[new_route_index] = Route(prior_history, self.end)
                         self.routes[new_route_index].addNextPos(option)
 
