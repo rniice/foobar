@@ -1,5 +1,5 @@
 import copy as copy
-
+from collections import deque
 #start: top left;   0, 0
 #end: bottom right; (w-1, h-1)
 
@@ -7,7 +7,7 @@ def answer(maze):
 
     class Route:
         def __init__(self, history, last_pos):
-            self.history    = history
+            self.history    = deque(history)
             self.next_pos   = None
             self.last_pos   = last_pos
             self.solved     = False
@@ -107,7 +107,7 @@ def answer(maze):
                 self.resetOptionIterators(shortest_route_length, start, end)
 
             while ((self.current_route <= self.max_route_index) and (self.routes[self.current_route].length < self.shortest_route_length)):
-                next_pos = self.identifyNextNode(index, self.routes[self.current_route].history)
+                next_pos = self.identifyNextNode(index, list(self.routes[self.current_route].history))
                 #print(next_pos)
 
                 if(len(next_pos)>0 and (not self.routes[self.current_route].solved) ):
@@ -116,7 +116,7 @@ def answer(maze):
 
                     for option in next_pos:
                         new_route_index = self.getNextRoute()
-                        prior_history = copy.deepcopy(self.routes[self.current_route].history[0:-1])
+                        prior_history = copy.deepcopy(list(self.routes[self.current_route].history)[0:-1])
                         self.routes[new_route_index] = Route(prior_history, self.end)
                         self.routes[new_route_index].addNextPos(option)
 
@@ -128,7 +128,9 @@ def answer(maze):
                     else:
                         self.current_route+=1
 
-            return {'len': self.shortest_route_length, 'history': self.routes[self.shortest_route_index].history}
+            #return {'len': self.shortest_route_length, 'history': list(self.routes[self.shortest_route_index].history)}
+            return {'len': self.shortest_route_length, 'last': self.routes[self.shortest_route_index].history[-1]}
+
 
     def printResults(maze, route):
         result_path = copy.deepcopy(maze)
@@ -141,8 +143,6 @@ def answer(maze):
             print(line)
 
     def main(m):
-
-        shortest_one_way_route = 9999999
         shortest_two_way_route = 9999999
         x = Maze(m)
 
@@ -151,18 +151,14 @@ def answer(maze):
             #find the distance from start to the wall
             start = (0,0)
             end = x.walls[index]
-            start2wall = x.recursiveSolve(index, True, start, end, shortest_one_way_route)
-            #print("start to wall for wall: " + str(x.walls[index]))
-            #printResults(x.design_options[index], start2wall['history'])
+            start2wall = x.recursiveSolve(index, True, start, end, shortest_two_way_route)
 
             start = (len(x.design[0]) - 1, len(x.design) - 1)
             end = x.walls[index]
-            end2wall = x.recursiveSolve(index, True, start, end, shortest_one_way_route)
-            #print("end to wall for wall: " + str(x.walls[index]))
-            #printResults(x.design_options[index], end2wall['history'])
+            end2wall = x.recursiveSolve(index, True, start, end, shortest_two_way_route)
 
             #make sure both routes connect
-            if(start2wall['history'][-1] == end2wall['history'][-1]):
+            if(start2wall['last'] == end2wall['last']):
                 combined_route_length = start2wall['len'] + end2wall['len'] - 1
                 if(combined_route_length < shortest_two_way_route ):
                     shortest_two_way_route = combined_route_length

@@ -34,11 +34,10 @@ input = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
         ]
-output = [7, 11, 5, 10, 11, "woot"]
+output = [7, 11, 5, 10, 11, 79]
 
 
 for index, item in enumerate(input):
-    print("index: " + str(index))
 
     start = milliseconds()
     result = answer(item)
@@ -46,10 +45,10 @@ for index, item in enumerate(input):
     delta = end - start
 
     if(result == output[index]):
-        print("time elapsed[ms]: " + str(delta))
-        print("correct answer:   " + str(result))
-        print("correct answer:   " + str(output[index]))
+        print("index: " + str(index) + "; correct elapsed[ms]:     " + str(delta))
+        #print("correct answer:   " + str(result))
+        #print("correct answer:   " + str(output[index]))
     else:
-        print("time elapsed[ms]: " + str(delta))
-        print("incorrect answer: " + str(result))
-        print("correct answer:   " + str(output[index]))
+        print("index: " + str(index) + "; incorrect elapsed[ms]:   " + str(delta))
+        #print("incorrect answer: " + str(result))
+        #print("correct answer:   " + str(output[index]))
