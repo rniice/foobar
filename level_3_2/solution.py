@@ -90,12 +90,12 @@ def answer(maze):
             if(pos_y == self.bounds[1]): allow[1]=0
 
             for index, val in enumerate(allow):
-                if(val == 1):
+                if(val):
                     pos_x_next = pos_x + map_next[index][0]
                     pos_y_next = pos_y + map_next[index][1]
                     next_tuple = (pos_x_next, pos_y_next)
 
-                    if(option_map[pos_y_next][pos_x_next] == 0 and next_tuple not in history):
+                    if(not option_map[pos_y_next][pos_x_next] and next_tuple not in history):
                         next_pos.append(next_tuple)
 
             return next_pos
@@ -103,8 +103,6 @@ def answer(maze):
         def solvePathway(self, index, reset, start, end, shortest_route_length):
             if(reset):
                 self.resetOptionIterators(shortest_route_length, start, end)
-
-            current_route_active = True
 
             while ((self.current_route <= self.max_route_index) and (self.routes[self.current_route].length < self.shortest_route_length)):
                 previous_history = list(self.routes[self.current_route].history)
