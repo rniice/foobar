@@ -1,7 +1,5 @@
 import copy as copy
 from collections import deque
-#start: top left;   0, 0
-#end: bottom right; (w-1, h-1)
 
 def answer(maze):
 
@@ -17,7 +15,6 @@ def answer(maze):
             self.history.append(next_pos)
             self.length+=1
             if(next_pos == self.last_pos):
-                #print("route solved")
                 self.solved = True
 
     class Maze:
@@ -133,7 +130,6 @@ def answer(maze):
         result_path = copy.deepcopy(maze)
         for y,row in enumerate(maze):
             for x,value in enumerate(row):
-                #change the value to "*" if in the route
                 if (x,y) in route:
                     result_path[y][x] = 8
         for line in result_path:
@@ -144,19 +140,15 @@ def answer(maze):
         results                = dict()
         x = Maze(m)
 
-        #create a dictionary of accumulating shortest routes
-        for index in range(0, len(x.walls)):
-            results[index] = {'s2w': 9999999, 'e2w': 9999999, 'combo': 9999999}
-
         for index in range(0, len(x.walls)):
             start2wall = x.recursiveSolve(index, True, (0,0), x.walls[index], shortest_two_way_route)
             end2wall = x.recursiveSolve(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
-            results[index] = {'s2w': start2wall['len'], 'e2w': end2wall['len'], 'combo': start2wall['len'] + end2wall['len'] - 1}
 
-            if(results[index]['combo'] < shortest_two_way_route ):
-                shortest_two_way_route = results[index]['combo']
+            if(start2wall['last']==end2wall['last']):
+                results[index] = start2wall['len'] + end2wall['len'] - 1
+                if(results[index] < shortest_two_way_route ):
+                    shortest_two_way_route = results[index]
 
         return shortest_two_way_route
 
     return main(maze)
-
