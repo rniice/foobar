@@ -143,30 +143,31 @@ def answer(maze):
             print(line)
 
     def main(m):
+        shortest_start2wall    = 9999999
+        shortest_end2wall      = 9999999
         shortest_two_way_route = 9999999
+        results                = dict()
         x = Maze(m)
 
+        #create a dictionary of accumulating shortest routes
         for index in range(0, len(x.walls)):
+            results[index] = {'s2w': 9999999, 'e2w': 9999999, 'combo': 9999999}
 
-            #find the distance from start to the wall
-            start = (0,0)
-            end = x.walls[index]
-            start2wall = x.recursiveSolve(index, True, start, end, shortest_two_way_route)
+        for index in range(0, len(x.walls)):
+            # find the distance from start to the wall
+            start2wall = x.recursiveSolve(index, True, (0,0), x.walls[index], shortest_two_way_route)
 
-            start = (len(x.design[0]) - 1, len(x.design) - 1)
-            end = x.walls[index]
-            end2wall = x.recursiveSolve(index, True, start, end, shortest_two_way_route)
+            # find the distance from end to the wall
+            end2wall = x.recursiveSolve(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
 
-            #make sure both routes connect
-            if(start2wall['last'] == end2wall['last']):
-                combined_route_length = start2wall['len'] + end2wall['len'] - 1
-                if(combined_route_length < shortest_two_way_route ):
-                    shortest_two_way_route = combined_route_length
+            results[index] = {'s2w': start2wall['len'], 'e2w': end2wall['len'], 'combo': start2wall['len'] + end2wall['len'] - 1}
+
+            if(results[index]['combo'] < shortest_two_way_route ):
+                shortest_two_way_route = results[index]['combo']
+
+            #do the other one in reverse within this loop?
 
         return shortest_two_way_route
 
     return main(maze)
 
-
-result = answer([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])
-print(result)
