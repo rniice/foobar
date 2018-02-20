@@ -30,9 +30,9 @@ def answer(maze):
             self.shortest_route_index   = 0
             self.shortest_route_length  = 99999
 
-        def getNextRoute(self):
-            self.max_route_index = max(self.routes.keys())+1
-            return self.max_route_index
+        def addNewRoute(self, history):
+            self.max_route_index+=1
+            self.routes[self.max_route_index] = Route(history, self.end)
 
         def resetOptionIterators(self ,shortest_length, start, end):
             self.start = start
@@ -104,18 +104,16 @@ def answer(maze):
             if(reset):
                 self.resetOptionIterators(shortest_route_length, start, end)
 
+            current_route_active = True
+
             while ((self.current_route <= self.max_route_index) and (self.routes[self.current_route].length < self.shortest_route_length)):
+                previous_history = list(self.routes[self.current_route].history)
                 next_pos = self.identifyNextNode(index, list(self.routes[self.current_route].history))
 
-                if(len(next_pos)>0 and (not self.routes[self.current_route].solved) ):
-                    default = next_pos.pop(0)
-                    self.routes[self.current_route].addNextPos(default)
-
+                if(next_pos and (not self.routes[self.current_route].solved) and self.routes[self.current_route].length < self.shortest_route_length ):
+                    self.routes[self.current_route].addNextPos(next_pos.pop(0))
                     for option in next_pos:
-                        new_route_index = self.getNextRoute()
-                        prior_history = list(self.routes[self.current_route].history)[0:-1]
-                        self.routes[new_route_index] = Route(prior_history, self.end)
-                        self.routes[new_route_index].addNextPos(option)
+                        self.addNewRoute(previous_history + [option])
 
                 else:
                     if(self.routes[self.current_route].solved and self.routes[self.current_route].length < self.shortest_route_length):
