@@ -1,4 +1,4 @@
-from solution import answer
+from solution_net_mod import answer
 import time
 
 def microseconds():
