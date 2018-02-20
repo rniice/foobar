@@ -59,10 +59,8 @@ def answer(maze):
                     if(val==1):
                         wall_tuples.append((x,y))
             #make up a fake wall within range if no walls exist
-            if(len(wall_tuples)==0 and len(self.design)>1):
-                wall_tuples.append((0,1))
-            else:
-                wall_tuples.append((1,0))
+            if(len(wall_tuples)==0 and len(self.design)>1): wall_tuples.append((0,1))
+            else: wall_tuples.append((1,0))
 
             return wall_tuples
 
@@ -106,7 +104,6 @@ def answer(maze):
                 next_pos = self.identifyNextNode(index, list(self.routes[self.current_route].history))
 
                 if(next_pos and (not self.routes[self.current_route].solved) ):
-                #if(len(next_pos)>0 and (not self.routes[self.current_route].solved) ):
                     default = next_pos[0]
                     self.routes[self.current_route].addNextPos(default)
 
