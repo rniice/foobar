@@ -1,4 +1,3 @@
-import copy as copy
 from collections import deque
 
 def answer(maze):
@@ -45,7 +44,11 @@ def answer(maze):
             self.shortest_route_length = shortest_length
 
         def removeWall(self, index):
-            mod = copy.deepcopy(self.design)
+            mod = list()
+            for i, item in enumerate(self.design):
+                mod.append(list())
+                for val in item:
+                    mod[i].append(val)
             mod[index[1]][index[0]] = 0
             return mod
 
@@ -97,7 +100,7 @@ def answer(maze):
 
             return next_pos
 
-        def recursiveSolve(self, index, reset, start, end, shortest_route_length):
+        def solvePathway(self, index, reset, start, end, shortest_route_length):
             if(reset):
                 self.resetOptionIterators(shortest_route_length, start, end)
 
@@ -119,21 +122,11 @@ def answer(maze):
                         self.shortest_route_length = self.routes[self.current_route].length
                         self.shortest_route_index  = self.current_route
                         self.current_route += 1
+
                     else:
                         self.current_route+=1
 
-            #return {'len': self.shortest_route_length, 'history': list(self.routes[self.shortest_route_index].history)}
             return {'len': self.shortest_route_length, 'last': self.routes[self.shortest_route_index].history[-1]}
-
-
-    def printResults(maze, route):
-        result_path = copy.deepcopy(maze)
-        for y,row in enumerate(maze):
-            for x,value in enumerate(row):
-                if (x,y) in route:
-                    result_path[y][x] = 8
-        for line in result_path:
-            print(line)
 
     def main(m):
         shortest_two_way_route = 9999999
@@ -141,10 +134,10 @@ def answer(maze):
         x = Maze(m)
 
         for index in range(0, len(x.walls)):
-            start2wall = x.recursiveSolve(index, True, (0,0), x.walls[index], shortest_two_way_route)
-            end2wall = x.recursiveSolve(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
+            start2wall = x.solvePathway(index, True, (0,0), x.walls[index], shortest_two_way_route)
+            end2wall = x.solvePathway(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
 
-            if(start2wall['last']==end2wall['last']):
+            if(start2wall['last']==end2wall['last'] and x.walls[index]==start2wall['last']):
                 results[index] = start2wall['len'] + end2wall['len'] - 1
                 if(results[index] < shortest_two_way_route ):
                     shortest_two_way_route = results[index]
