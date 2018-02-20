@@ -143,8 +143,6 @@ def answer(maze):
             print(line)
 
     def main(m):
-        shortest_start2wall    = 9999999
-        shortest_end2wall      = 9999999
         shortest_two_way_route = 9999999
         results                = dict()
         x = Maze(m)
@@ -154,18 +152,12 @@ def answer(maze):
             results[index] = {'s2w': 9999999, 'e2w': 9999999, 'combo': 9999999}
 
         for index in range(0, len(x.walls)):
-            # find the distance from start to the wall
             start2wall = x.recursiveSolve(index, True, (0,0), x.walls[index], shortest_two_way_route)
-
-            # find the distance from end to the wall
             end2wall = x.recursiveSolve(index, True, (len(x.design[0]) - 1, len(x.design) - 1), x.walls[index], shortest_two_way_route)
-
             results[index] = {'s2w': start2wall['len'], 'e2w': end2wall['len'], 'combo': start2wall['len'] + end2wall['len'] - 1}
 
             if(results[index]['combo'] < shortest_two_way_route ):
                 shortest_two_way_route = results[index]['combo']
-
-            #do the other one in reverse within this loop?
 
         return shortest_two_way_route
 
